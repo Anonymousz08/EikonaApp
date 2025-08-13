@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eikona - Dashboard</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <link rel="stylesheet" href="/output.css" />
+    <style>
+      body {
+        background: radial-gradient(ellipse at top left, #1f1c2c, #0f0c29);
+        display: flex;
+        min-height: 100vh;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      /* Masonry container using CSS columns */
+      .masonry {
+        column-count: 4;
+        column-gap: 1.5rem;
+      }
+      @media (max-width: 1024px) {
+        .masonry {
+          column-count: 3;
+        }
+      }
+      @media (max-width: 768px) {
+        .masonry {
+          column-count: 2;
+        }
+      }
+      @media (max-width: 640px) {
+        .masonry {
+          column-count: 1;
+        }
+      }
+      /* Each post should avoid breaking inside columns */
+      .masonry-item {
+        break-inside: avoid;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Fixed image container with consistent aspect ratio */
+      .image-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 0.75rem;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        background: linear-gradient(
+          90deg,
+          #2a2a3d 25%,
+          #3b3b52 37%,
+          #2a2a3d 63%
+        );
+        background-size: 400% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      /* Responsive image that maintains aspect ratio */
+      .post-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .post-image:hover {
+        transform: scale(1.02);
+      }
+
+      /* Remove shimmer animation when image loads */
+      .image-container.loaded {
+        animation: none;
+        background: transparent;
+      }
+
+      /* Sidebar styles */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 280px;
+        z-index: 50;
+        transition: transform 0.3s ease;
+      }
+      /* Main content area */
+      .main-content {
+        margin-left: 280px;
+        flex-grow: 1;
+        padding: 2rem;
+        width: calc(100% - 280px);
+      }
+      /* Mobile sidebar toggle */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      /* Search input styles */
+      .search-input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+      .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .search-input:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      /* Logo animation */
+      .logo-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientShift 3s ease-in-out infinite;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+        }
+        50% {
+          background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+        }
+      }
+
+      /* Empty state styles */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+      }
+
+      .empty-illustration {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 2rem;
+        opacity: 0.7;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Camera icon animation */
+      .camera-icon {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.8;
+        }
+      }
+
+      /* Download button styles */
+      .download-btn {
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        transition: all 0.2s ease;
+      }
+
+      .download-btn:hover {
+        background: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.5);
+        transform: translateY(-1px);
+      }
+
+      /* Tooltip styles */
+      .tooltip {
+        position: relative;
+      }
+
+      .tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 1000;
+      }
+
+      .tooltip:hover::after {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="font-sans text-white">
+    <!-- Mobile Menu Button -->
+    <button
+      id="mobileMenuBtn"
+      class="md:hidden fixed top-4 left-4 z-60 glass p-2 rounded-lg"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        ></path>
+      </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar glass shadow-2xl">
+      <div class="p-6">
+        <!-- Brand Logo -->
+        <div class="mb-8 text-center">
+          <h1 class="text-3xl font-bold logo-text mb-2">Eikona</h1>
+          <p class="text-xs text-gray-400 uppercase tracking-widest">
+            Visual Stories
+          </p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="space-y-4 mb-8">
+          <a
+            href="/dashboard"
+            class="flex items-center space-x-3 p-3 rounded-lg bg-indigo-500 text-white"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m8 5l4-4 4 4"
+              ></path>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="/create-post"
+            class="flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-500 hover:bg-opacity-10 transition"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              ></path>
+            </svg>
+            <span>Create Post</span>
+          </a>
+          <a
+            href="/profile"
+            class="flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-500 hover:bg-opacity-10 transition"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              ></path>
+            </svg>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <!-- Logout -->
+        <a
+          href="/logout"
+          class="flex items-center space-x-3 p-3 rounded-lg bg-red-500 hover:bg-red-600 transition text-white"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            ></path>
+          </svg>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Search Section (only show if there are posts) -->
+      <% if (allPosts && allPosts.length > 0) { %>
+      <div class="mb-8">
+        <div class="flex flex-col md:flex-row gap-4 items-center">
+          <div class="relative flex-grow">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search posts..."
+              class="search-input w-full px-4 py-3 pl-12 rounded-lg"
+            />
+            <svg
+              class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+          </div>
+          <button
+            id="searchBtn"
+            class="bg-indigo-500 hover:bg-indigo-600 px-6 py-3 rounded-lg shadow transition font-medium whitespace-nowrap"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Posts Section -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-6 flex items-center">
+          <svg
+            class="w-6 h-6 mr-2 text-indigo-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 11H5m14-7H5m14 14H5"
+            ></path>
+          </svg>
+          Feed
+        </h2>
+
+        <!-- Check if posts exist -->
+        <% if (allPosts && allPosts.length > 0) { %>
+        <div id="postsContainer" class="masonry">
+          <% allPosts.forEach(post => { %>
+          <div
+            class="glass p-5 rounded-xl shadow-md masonry-item post-item"
+            data-post-id="<%= post._id %>"
+          >
+            <% if(post.imgUrl){ %>
+            <div class="image-container" id="img-container-<%= post._id %>">
+              <img
+                src="<%= post.imgUrl %>"
+                alt="Post image by <%= (post.user && post.user.name) || 'Unknown User' %>"
+                class="post-image"
+                loading="lazy"
+                onload="handleImageLoad('<%= post._id %>')"
+                onerror="handleImageError('<%= post._id %>')"
+              />
+            </div>
+            <% } %>
+
+            <div class="flex justify-between items-start mb-3">
+              <div class="text-sm text-indigo-300">
+                @<%= (post.user && post.user.name) || 'Unknown User' %>
+              </div>
+              <div class="flex space-x-2">
+                <% if(post.imgUrl){ %>
+                <!-- Download Button -->
+                <button
+                  class="download-btn text-green-400 hover:text-green-300 transition tooltip"
+                  data-tooltip="Download Image"
+                  onclick="downloadImage('<%= post.imgUrl %>', '<%= post.content.substring(0, 20) %>')"
+                  title="Download post image"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    ></path>
+                  </svg>
+                </button>
+                <% } %>
+              </div>
+            </div>
+
+            <p class="text-gray-100 mb-2 post-content"><%= post.content %></p>
+            <div class="text-xs text-gray-400">
+              <%= (() => { const d = new Date(post.date); const day =
+              String(d.getDate()).padStart(2, '0'); const month =
+              String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+              const year = d.getFullYear(); return `${day}/${month}/${year}`;
+              })() %>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+
+        <% } else { %>
+        <!-- Empty State -->
+        <div class="empty-state glass p-8 rounded-2xl">
+          <div class="empty-illustration">
+            <svg
+              class="w-full h-full text-indigo-300 camera-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+            </svg>
+          </div>
+
+          <h3 class="text-2xl font-semibold text-gray-200 mb-4">
+            No Posts Yet
+          </h3>
+          <p class="text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
+            The community is just getting started! Be the first to share your
+            visual stories and inspire others on Eikona.
+          </p>
+
+          <div class="space-y-4">
+            <a
+              href="/create-post"
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
+            >
+              <svg
+                class="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                ></path>
+              </svg>
+              Create Your First Post
+            </a>
+
+            <div class="text-sm text-gray-500 space-y-2">
+              <p>✨ Share your favorite moments</p>
+              <p>📸 Upload beautiful images</p>
+              <p>🌟 Connect with the community</p>
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- No Search Results Message (hidden by default) -->
+        <div
+          id="noSearchResults"
+          class="empty-state glass p-8 rounded-2xl"
+          style="display: none"
+        >
+          <div class="empty-illustration">
+            <svg
+              class="w-full h-full text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+          </div>
+
+          <h3 class="text-2xl font-semibold text-gray-200 mb-4">
+            No Results Found
+          </h3>
+          <p class="text-gray-400 mb-6">
+            Try adjusting your search terms or browse all posts instead.
+          </p>
+          <button
+            id="clearSearch"
+            class="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition"
+          >
+            Clear Search
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const sidebar = document.getElementById("sidebar");
+      mobileMenuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+      });
+
+      // Image loading handlers
+      function handleImageLoad(postId) {
+        const container = document.getElementById(`img-container-${postId}`);
+        if (container) {
+          container.classList.add("loaded");
+        }
+      }
+
+      function handleImageError(postId) {
+        const container = document.getElementById(`img-container-${postId}`);
+        if (container) {
+          container.classList.add("loaded");
+          container.innerHTML = `
+            <div class="flex items-center justify-center h-48 bg-gray-700 rounded-lg">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          `;
+        }
+      }
+
+      // Download functionality
+      async function downloadImage(imageUrl, filename) {
+        try {
+          // Show loading state
+          const button = event.target.closest(".download-btn");
+          const originalContent = button.innerHTML;
+          button.innerHTML = `
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          `;
+          button.disabled = true;
+
+          // Fetch the image
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `eikona-${filename.replace(
+            /[^a-zA-Z0-9]/g,
+            "-"
+          )}-${Date.now()}.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          // Show success feedback
+          button.innerHTML = `
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          `;
+
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+          }, 2000);
+        } catch (error) {
+          console.error("Download failed:", error);
+
+          // Show error feedback
+          button.innerHTML = `
+            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          `;
+
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+          }, 2000);
+
+          // Fallback: open image in new tab
+          window.open(imageUrl, "_blank");
+        }
+      }
+
+      // Search functionality (only if posts exist)
+      const searchInput = document.getElementById("searchInput");
+      const searchBtn = document.getElementById("searchBtn");
+      const postItems = document.querySelectorAll(".post-item");
+      const noSearchResults = document.getElementById("noSearchResults");
+      const clearSearchBtn = document.getElementById("clearSearch");
+      const postsContainer = document.getElementById("postsContainer");
+
+      if (searchInput && searchBtn) {
+        function performSearch() {
+          const searchTerm = searchInput.value.toLowerCase().trim();
+          let visiblePosts = 0;
+
+          postItems.forEach((post) => {
+            const content = post
+              .querySelector(".post-content")
+              .textContent.toLowerCase();
+            const username = post
+              .querySelector(".text-indigo-300")
+              .textContent.toLowerCase();
+
+            if (
+              searchTerm === "" ||
+              content.includes(searchTerm) ||
+              username.includes(searchTerm)
+            ) {
+              post.style.display = "block";
+              visiblePosts++;
+            } else {
+              post.style.display = "none";
+            }
+          });
+
+          // Show/hide no results message
+          if (searchTerm !== "" && visiblePosts === 0) {
+            noSearchResults.style.display = "block";
+            if (postsContainer) postsContainer.style.display = "none";
+          } else {
+            noSearchResults.style.display = "none";
+            if (postsContainer) postsContainer.style.display = "block";
+          }
+        }
+
+        function clearSearch() {
+          searchInput.value = "";
+          postItems.forEach((post) => {
+            post.style.display = "block";
+          });
+          noSearchResults.style.display = "none";
+          if (postsContainer) postsContainer.style.display = "block";
+        }
+
+        searchBtn.addEventListener("click", performSearch);
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            performSearch();
+          }
+        });
+
+        // Real-time search
+        searchInput.addEventListener("input", () => {
+          if (searchInput.value.trim() === "") {
+            clearSearch();
+          } else {
+            performSearch();
+          }
+        });
+
+        if (clearSearchBtn) {
+          clearSearchBtn.addEventListener("click", clearSearch);
+        }
+      }
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+          if (
+            !sidebar.contains(e.target) &&
+            !mobileMenuBtn.contains(e.target)
+          ) {
+            sidebar.classList.remove("open");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found - Eikona</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#6366f1",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #1a172b 0%, #282536 100%);
+        min-height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Glass Effect Base */
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      /* Animated Background Elements */
+      .floating-shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        animation: float 8s ease-in-out infinite;
+      }
+
+      .floating-shape:nth-child(1) {
+        width: 100px;
+        height: 100px;
+        top: 15%;
+        left: 8%;
+        animation-delay: 0s;
+      }
+
+      .floating-shape:nth-child(2) {
+        width: 150px;
+        height: 150px;
+        top: 55%;
+        right: 12%;
+        animation-delay: 3s;
+      }
+
+      .floating-shape:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        bottom: 25%;
+        left: 25%;
+        animation-delay: 6s;
+      }
+
+      .floating-shape:nth-child(4) {
+        width: 120px;
+        height: 120px;
+        top: 35%;
+        right: 35%;
+        animation-delay: 4.5s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg) scale(1);
+          opacity: 0.3;
+        }
+        25% {
+          transform: translateY(-30px) rotate(90deg) scale(1.1);
+          opacity: 0.5;
+        }
+        50% {
+          transform: translateY(-15px) rotate(180deg) scale(0.9);
+          opacity: 0.4;
+        }
+        75% {
+          transform: translateY(-45px) rotate(270deg) scale(1.05);
+          opacity: 0.6;
+        }
+      }
+
+      /* Button Animations */
+      .btn-gradient {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-gradient::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.6s ease;
+      }
+
+      .btn-gradient:hover::before {
+        left: 100%;
+      }
+
+      .btn-gradient:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
+      }
+
+      .btn-gradient:active {
+        transform: translateY(-1px) scale(0.98);
+      }
+
+      /* Loading Animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Toast Animation */
+      .toast-slide {
+        transform: translateX(400px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .toast-slide.show {
+        transform: translateX(0);
+      }
+
+      /* Particle Effects */
+      .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(99, 102, 241, 0.6);
+        border-radius: 50%;
+        animation: particle 6s linear infinite;
+      }
+
+      @keyframes particle {
+        0% {
+          transform: translateY(100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-10px) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* Mobile Enhancements */
+      @media (max-width: 768px) {
+        .floating-shape {
+          display: none;
+        }
+
+        .error-number {
+          font-size: 5rem !important;
+        }
+
+        .logo-text {
+          font-size: 1.75rem !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .error-number {
+          font-size: 4rem !important;
+        }
+      }
+
+      /* Focus States */
+      .btn-gradient:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Smooth transitions */
+      * {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      button,
+      a {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    </style>
+  </head>
+  <body class="relative flex items-center justify-center">
+    <!-- Particle Background -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="particle" style="left: 10%; animation-delay: 0s"></div>
+      <div class="particle" style="left: 20%; animation-delay: 1s"></div>
+      <div class="particle" style="left: 30%; animation-delay: 2s"></div>
+      <div class="particle" style="left: 40%; animation-delay: 3s"></div>
+      <div class="particle" style="left: 50%; animation-delay: 4s"></div>
+      <div class="particle" style="left: 60%; animation-delay: 5s"></div>
+      <div class="particle" style="left: 70%; animation-delay: 1.5s"></div>
+      <div class="particle" style="left: 80%; animation-delay: 2.5s"></div>
+      <div class="particle" style="left: 90%; animation-delay: 3.5s"></div>
+    </div>
+
+    <!-- Floating Background Shapes -->
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
+      <div class="floating-shape"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed top-5 right-5 z-50 glass rounded-xl p-4 text-white font-medium shadow-2xl toast-slide"
+    >
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 rounded-full animate-pulse"></div>
+        <span>Oops! This page wandered off...</span>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 relative z-10">
+      <div
+        class="error-card glass rounded-3xl p-12 md:p-16 text-center max-w-2xl mx-auto shadow-2xl transition-all duration-500 hover:scale-[1.02]"
+      >
+        <!-- Animated Logo -->
+        <div
+          class="logo-text text-indigo-500 text-3xl md:text-4xl font-bold mb-8"
+        >
+          Eikona
+        </div>
+
+        <!-- 404 Number -->
+        <div
+          class="error-number text-8xl md:text-9xl font-black text-white mb-6"
+        >
+          404
+        </div>
+
+        <!-- Error Message -->
+        <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">
+          Page Not Found
+        </h1>
+
+        <!-- Description -->
+        <p
+          class="text-lg text-white/80 mb-10 max-w-md mx-auto leading-relaxed"
+          id="errorDescription"
+        >
+          This page seems to have taken an unexpected detour into the digital
+          cosmos. Let's navigate you back home.
+        </p>
+
+        <!-- Action Button -->
+        <div class="flex justify-center">
+          <button
+            id="homeBtn"
+            class="btn-gradient glass rounded-xl px-8 py-4 text-white font-semibold text-lg shadow-lg transition-all duration-300 flex items-center space-x-3 focus:outline-none focus:ring-4 focus:ring-indigo-500/50"
+          >
+            <span>Return Home</span>
+            <span id="homeLoader" class="loading-spinner hidden ml-2"></span>
+          </button>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mt-8 text-sm text-white/60">
+          <p>
+            Lost? Press
+            <kbd class="bg-white/10 px-2 py-1 rounded text-white/80">Esc</kbd>
+            to go home quickly
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Enhanced toast notification with auto-hide
+      setTimeout(() => {
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 4000);
+      }, 1200);
+
+      // Home button with enhanced loading state
+      document
+        .getElementById("homeBtn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          const loader = document.getElementById("homeLoader");
+          const btn = this;
+
+          // Show loading state
+          loader.classList.remove("hidden");
+          btn.style.opacity = "0.8";
+          btn.style.transform = "translateY(-1px) scale(0.98)";
+
+          // Simulate navigation delay for smooth UX
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1000);
+        });
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          document.getElementById("homeBtn").click();
+        } else if (e.key === "r" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          location.reload();
+        }
+      });
+
+      // Dynamic error messages
+      const errorMessages = [
+        "This page seems to have taken an unexpected detour into the digital cosmos. Let's navigate you back home.",
+        "We've searched high and low, but this page is playing an excellent game of hide-and-seek.",
+        "This page decided to go on an adventure without telling us. Time to head back to familiar territory.",
+        "Looks like this page got lost in cyberspace. Don't worry, we know the way home.",
+        "This page is currently taking a coffee break in another dimension. Let's get you somewhere real.",
+      ];
+
+      // Change error description periodically
+      let messageIndex = 0;
+      setInterval(() => {
+        const description = document.getElementById("errorDescription");
+        messageIndex = (messageIndex + 1) % errorMessages.length;
+
+        description.style.opacity = "0";
+        description.style.transform = "translateY(10px)";
+
+        setTimeout(() => {
+          description.textContent = errorMessages[messageIndex];
+          description.style.opacity = "1";
+          description.style.transform = "translateY(0)";
+        }, 300);
+      }, 8000);
+
+      // Add some interactive particles on click
+      document.addEventListener("click", function (e) {
+        if (e.target.tagName !== "BUTTON") {
+          createClickEffect(e.clientX, e.clientY);
+        }
+      });
+
+      function createClickEffect(x, y) {
+        const effect = document.createElement("div");
+        effect.className =
+          "absolute w-2 h-2 bg-indigo-400 rounded-full pointer-events-none z-40";
+        effect.style.left = x + "px";
+        effect.style.top = y + "px";
+        effect.style.animation = "ping 0.8s cubic-bezier(0, 0, 0.2, 1)";
+
+        document.body.appendChild(effect);
+
+        setTimeout(() => {
+          effect.remove();
+        }, 800);
+      }
+
+      // Add some life to the page with random glitch effects
+      setInterval(() => {
+        const errorNumber = document.querySelector(".error-number");
+        errorNumber.style.textShadow = "0 8px 32px rgba(99, 102, 241, 0.6)";
+
+        setTimeout(() => {
+          errorNumber.style.textShadow = "0 8px 32px rgba(99, 102, 241, 0.4)";
+        }, 200);
+      }, 15000);
+
+      // Preload home page for faster navigation
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.href = "/";
+      document.head.appendChild(link);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eikona - Create Post</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <link rel="stylesheet" href="/output.css" />
+
+    <style>
+      body {
+        background: radial-gradient(ellipse at top left, #1f1c2c, #0f0c29);
+        display: flex;
+        min-height: 100vh;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      /* Sidebar styles */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 280px;
+        z-index: 50;
+        transition: transform 0.3s ease;
+      }
+      /* Main content area */
+      .main-content {
+        margin-left: 280px;
+        flex-grow: 1;
+        padding: 2rem;
+        width: calc(100% - 280px);
+      }
+      /* Mobile sidebar toggle */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+      /* Form styles */
+      .form-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        transition: all 0.2s ease;
+      }
+      .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      /* Select dropdown dark mode */
+      .form-input option {
+        background: #1f1c2c;
+        color: white;
+      }
+      /* Character counter */
+      .char-counter {
+        transition: color 0.2s ease;
+      }
+      .char-counter.warning {
+        color: #fbbf24;
+      }
+      .char-counter.danger {
+        color: #ef4444;
+      }
+      /* Image preview */
+      .image-preview {
+        max-height: 300px;
+        border-radius: 0.75rem;
+        object-fit: cover;
+      }
+      /* Drag and drop styles */
+      .drop-zone {
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        transition: all 0.2s ease;
+      }
+      .drop-zone.dragover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      /* Validation styles */
+      .field-error {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+      }
+
+      .error-message {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+      }
+
+      /* Logo animation */
+      .logo-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientShift 3s ease-in-out infinite;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+        }
+        50% {
+          background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+        }
+      }
+
+      /* Upload zone enhancement */
+      .upload-icon {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Form animation */
+      .form-container {
+        animation: slideUp 0.6s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Button states */
+      .publish-btn {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .publish-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+      }
+
+      .publish-btn:disabled {
+        background: linear-gradient(135deg, #64748b 0%, #6b7280 100%);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .publish-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .publish-btn:hover:not(:disabled)::before {
+        left: 100%;
+      }
+
+      /* Tips section enhancement */
+      .tips-container {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+        }
+      }
+    </style>
+  </head>
+  <body class="font-sans text-white">
+    <!-- Mobile Menu Button -->
+    <button
+      id="mobileMenuBtn"
+      class="md:hidden fixed top-4 left-4 z-60 glass p-2 rounded-lg"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        ></path>
+      </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar glass shadow-2xl">
+      <div class="p-6">
+        <!-- Brand Logo -->
+        <div class="mb-8 text-center">
+          <h1 class="text-3xl font-bold logo-text mb-2">Eikona</h1>
+          <p class="text-xs text-gray-400 uppercase tracking-widest">
+            Visual Stories
+          </p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="space-y-4 mb-8">
+          <a
+            href="/dashboard"
+            class="flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-500 hover:bg-opacity-10 transition"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m8 5l4-4 4 4"
+              ></path>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="/create-post"
+            class="flex items-center space-x-3 p-3 rounded-lg bg-indigo-500 text-white"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              ></path>
+            </svg>
+            <span>Create Post</span>
+          </a>
+          <a
+            href="/profile"
+            class="flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-500 hover:bg-opacity-10 transition"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              ></path>
+            </svg>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <!-- Creative Tips -->
+        <div class="glass p-4 rounded-lg mb-8 tips-container">
+          <h3
+            class="text-sm font-semibold text-indigo-300 mb-3 flex items-center"
+          >
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+              ></path>
+            </svg>
+            Creative Tips
+          </h3>
+          <ul class="text-xs text-gray-400 space-y-2">
+            <li class="flex items-center">
+              <span class="text-green-400 mr-2">✨</span>
+              Tell your story visually
+            </li>
+            <li class="flex items-center">
+              <span class="text-blue-400 mr-2">📸</span>
+              High-quality images work best
+            </li>
+            <li class="flex items-center">
+              <span class="text-purple-400 mr-2">💫</span>
+              Keep captions engaging
+            </li>
+            <li class="flex items-center">
+              <span class="text-yellow-400 mr-2">🎯</span>
+              Press Enter to publish
+            </li>
+          </ul>
+        </div>
+
+        <!-- Logout -->
+        <a
+          href="/logout"
+          class="flex items-center space-x-3 p-3 rounded-lg bg-red-500 hover:bg-red-600 transition text-white"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            ></path>
+          </svg>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8 text-center">
+          <h2
+            class="text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+          >
+            Create New Post
+          </h2>
+          <p class="text-gray-300 text-lg">
+            Share your visual story with the world
+          </p>
+        </div>
+
+        <!-- Form Section -->
+        <section class="glass p-8 rounded-2xl shadow-2xl form-container">
+          <form
+            id="postForm"
+            action="/create-post"
+            method="POST"
+            enctype="multipart/form-data"
+            class="space-y-8"
+            novalidate
+          >
+            <!-- Image Upload -->
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-300 mb-3 flex items-center"
+              >
+                <svg
+                  class="w-5 h-5 mr-2 text-indigo-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                Add Your Image <span class="text-red-400 ml-1">*</span>
+              </label>
+              <div
+                id="dropZone"
+                class="drop-zone p-8 rounded-xl text-center cursor-pointer hover:bg-indigo-500 hover:bg-opacity-5 transition-all duration-300"
+              >
+                <svg
+                  class="mx-auto h-16 w-16 text-indigo-400 mb-4 upload-icon"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <p class="text-gray-200 mb-2 text-lg font-medium">
+                  Click to upload or drag and drop
+                </p>
+                <p class="text-sm text-gray-400">PNG, JPG, GIF up to 50MB</p>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  name="file"
+                  accept="image/*"
+                  class="hidden"
+                  required
+                />
+              </div>
+              <div id="imageError" class="error-message hidden">
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  ></path>
+                </svg>
+                Please select an image to upload.
+              </div>
+              <div id="imagePreview" class="mt-6 hidden">
+                <div class="relative">
+                  <img
+                    id="previewImg"
+                    class="image-preview w-full shadow-xl"
+                    alt="Preview"
+                  />
+                  <button
+                    type="button"
+                    id="removeImage"
+                    class="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-all duration-200 shadow-lg"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Input -->
+            <div>
+              <label
+                for="content"
+                class="block text-sm font-medium text-gray-300 mb-3 flex items-center"
+              >
+                <svg
+                  class="w-5 h-5 mr-2 text-indigo-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  ></path>
+                </svg>
+                Your Caption <span class="text-red-400 ml-1">*</span>
+              </label>
+              <div class="relative">
+                <textarea
+                  id="content"
+                  name="content"
+                  rows="4"
+                  required
+                  maxlength="100"
+                  class="form-input w-full rounded-xl px-5 py-4 resize-none text-lg placeholder-gray-400 focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Share your thoughts, ideas, or the story behind your image..."
+                ></textarea>
+                <div class="absolute bottom-4 right-4">
+                  <span id="charCount" class="char-counter text-sm font-medium"
+                    >0</span
+                  >
+                  <span class="text-gray-500 text-sm">/100</span>
+                </div>
+              </div>
+              <div id="contentError" class="error-message hidden">
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  ></path>
+                </svg>
+                Please enter a caption for your post.
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center pt-6">
+              <button
+                type="submit"
+                id="publishBtn"
+                class="publish-btn w-full font-semibold px-8 py-4 rounded-xl shadow-xl text-white text-lg flex items-center justify-center space-x-3 relative transition-all duration-300"
+              >
+                <svg
+                  id="publishIcon"
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  ></path>
+                </svg>
+                <!-- Loading spinner (hidden by default) -->
+                <svg
+                  id="loadingSpinner"
+                  class="w-6 h-6 animate-spin hidden"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span id="publishText">Publish to Eikona</span>
+              </button>
+            </div>
+
+            <!-- Quick Actions Hint -->
+            <div class="text-center">
+              <p class="text-xs text-gray-500">
+                💡 Press
+                <kbd class="px-2 py-1 bg-gray-700 rounded text-gray-300"
+                  >Enter</kbd
+                >
+                to publish quickly
+              </p>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const sidebar = document.getElementById("sidebar");
+
+      mobileMenuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+      });
+
+      // Character counter
+      const textarea = document.getElementById("content");
+      const charCount = document.getElementById("charCount");
+      const form = document.getElementById("postForm");
+
+      textarea.addEventListener("input", function () {
+        const count = this.value.length;
+        charCount.textContent = count;
+
+        charCount.className = "char-counter text-sm font-medium";
+        if (count > 80) {
+          charCount.classList.add("warning");
+        }
+        if (count > 90) {
+          charCount.classList.remove("warning");
+          charCount.classList.add("danger");
+        }
+
+        // Clear validation error when user types
+        if (count > 0) {
+          clearFieldError("content");
+        }
+      });
+
+      // Validation functions
+      function showFieldError(fieldName, message) {
+        const field = document.getElementById(fieldName);
+        const errorDiv = document.getElementById(fieldName + "Error");
+
+        if (fieldName === "imageUpload") {
+          const dropZone = document.getElementById("dropZone");
+          dropZone.classList.add("field-error");
+        } else {
+          field.classList.add("field-error");
+        }
+
+        if (errorDiv) {
+          errorDiv.classList.remove("hidden");
+        }
+      }
+
+      function clearFieldError(fieldName) {
+        const field = document.getElementById(fieldName);
+        const errorDiv = document.getElementById(fieldName + "Error");
+
+        if (fieldName === "imageUpload") {
+          const dropZone = document.getElementById("dropZone");
+          dropZone.classList.remove("field-error");
+        } else {
+          field.classList.remove("field-error");
+        }
+
+        if (errorDiv) {
+          errorDiv.classList.add("hidden");
+        }
+      }
+
+      function validateForm() {
+        let isValid = true;
+
+        // Clear all previous errors
+        clearFieldError("imageUpload");
+        clearFieldError("content");
+
+        // Validate image upload
+        const imageUpload = document.getElementById("imageUpload");
+        if (!imageUpload.files || imageUpload.files.length === 0) {
+          showFieldError("imageUpload", "Please select an image to upload.");
+          isValid = false;
+        }
+
+        // Validate content
+        const content = document.getElementById("content");
+        if (!content.value.trim()) {
+          showFieldError("content", "Please enter a caption for your post.");
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      // Form submission handling
+      form.addEventListener("submit", function (e) {
+        e.preventDefault(); // Always prevent default first
+
+        if (!validateForm()) {
+          return; // Stop if validation fails
+        }
+
+        const publishBtn = document.getElementById("publishBtn");
+        const publishIcon = document.getElementById("publishIcon");
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const publishText = document.getElementById("publishText");
+
+        // Disable button and show loading state
+        publishBtn.disabled = true;
+        publishIcon.classList.add("hidden");
+        loadingSpinner.classList.remove("hidden");
+        publishText.textContent = "Publishing...";
+
+        // Submit the form
+        this.submit();
+      });
+
+      // Submit on Enter (without Shift)
+      textarea.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey) {
+          e.preventDefault();
+
+          if (!validateForm()) {
+            return; // Stop if validation fails
+          }
+
+          // Trigger the same loading state as form submission
+          const publishBtn = document.getElementById("publishBtn");
+          const publishIcon = document.getElementById("publishIcon");
+          const loadingSpinner = document.getElementById("loadingSpinner");
+          const publishText = document.getElementById("publishText");
+
+          publishBtn.disabled = true;
+          publishIcon.classList.add("hidden");
+          loadingSpinner.classList.remove("hidden");
+          publishText.textContent = "Publishing...";
+
+          form.submit();
+        }
+      });
+
+      // Image upload handling
+      const dropZone = document.getElementById("dropZone");
+      const imageUpload = document.getElementById("imageUpload");
+      const imagePreview = document.getElementById("imagePreview");
+      const previewImg = document.getElementById("previewImg");
+      const removeImage = document.getElementById("removeImage");
+
+      // Click to upload
+      dropZone.addEventListener("click", () => {
+        imageUpload.click();
+      });
+
+      // Drag and drop
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith("image/")) {
+          handleImageUpload(files[0]);
+        }
+      });
+
+      // File input change
+      imageUpload.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          handleImageUpload(e.target.files[0]);
+        }
+      });
+
+      // Handle image upload
+      function handleImageUpload(file) {
+        if (file.size > 50 * 1024 * 1024) {
+          // 50MB limit
+          alert("Image size should be less than 50MB");
+          return;
+        }
+
+        // Create a new FileList to update the input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        imageUpload.files = dt.files;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previewImg.src = e.target.result;
+          imagePreview.classList.remove("hidden");
+          dropZone.classList.add("hidden");
+          clearFieldError("imageUpload"); // Clear error when image is added
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Remove image
+      removeImage.addEventListener("click", () => {
+        imageUpload.value = "";
+        imagePreview.classList.add("hidden");
+        dropZone.classList.remove("hidden");
+        clearFieldError("imageUpload");
+      });
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+          if (
+            !sidebar.contains(e.target) &&
+            !mobileMenuBtn.contains(e.target)
+          ) {
+            sidebar.classList.remove("open");
+          }
+        }
+      });
+
+      // Add some interactive feedback
+      const publishBtn = document.querySelector(".publish-btn");
+
+      // Only add hover effects if button is not disabled
+      publishBtn.addEventListener("mouseenter", () => {
+        if (!publishBtn.disabled) {
+          publishBtn.style.transform = "translateY(-2px) scale(1.02)";
+        }
+      });
+
+      publishBtn.addEventListener("mouseleave", () => {
+        if (!publishBtn.disabled) {
+          publishBtn.style.transform = "translateY(0) scale(1)";
+        }
+      });
+    </script>
+  </body>
+</html>

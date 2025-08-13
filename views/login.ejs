@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eikona - Login</title>
+    <!-- Toastify CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <link rel="stylesheet" href="/output.css" />
+
+    <style>
+      body {
+        background: radial-gradient(ellipse at top left, #1f1c2c, #0f0c29);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center text-white">
+    <div
+      class="w-full max-w-md p-8 rounded-2xl border border-white/10 backdrop-blur-xl bg-white/5 shadow-2xl"
+    >
+      <h2 class="text-3xl font-bold mb-6 text-center">Welcome back</h2>
+
+      <form action="/login" method="POST" class="space-y-5">
+        <div>
+          <label for="email" class="block text-sm font-medium text-white/80"
+            >Email Address</label
+          >
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            class="w-full mt-1 px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/60 border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-white/80"
+            >Password</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            class="w-full mt-1 px-4 py-2 rounded-md bg-white/10 text-white placeholder-white/60 border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md text-lg transition duration-300 ease-in-out shadow-md hover:shadow-xl"
+        >
+          Login
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-white/70 mt-6">
+        Don't have an account?
+        <a
+          href="/register"
+          class="text-indigo-400 hover:text-indigo-300 font-semibold transition duration-200"
+          >Register here</a
+        >
+      </p>
+    </div>
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get("error");
+
+      if (error) {
+        Toastify({
+          text: decodeURIComponent(error),
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "#FF4C4C",
+          stopOnFocus: true,
+        }).showToast();
+      }
+    </script>
+  </body>
+</html>

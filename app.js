@@ -9,6 +9,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const compression = require("compression");
 const multer = require("multer");
+const favicon = require("serve-favicon");
 
 // Import routes
 const authRoutes = require("./routes/auth.routes");
@@ -60,6 +61,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json({ limit: "10mb" })); // Add size limit
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
+app.use(favicon(path.join(__dirname, "public", "favicon.png")));
 
 // Static file serving with caching
 app.use(
